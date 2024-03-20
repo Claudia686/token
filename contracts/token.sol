@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-
 contract Tokens {
     string public name;
     string public symbol;
@@ -22,6 +21,24 @@ contract Tokens {
         totalSupply = _totalSupply *(10**decimals);
         balanceOf[msg.sender] = totalSupply;
      }
+
+ function transfer(address _to, uint256 _value)
+public 
+returns (bool success)
+{
+require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+require(_value >= 0, "Transfer amount must be greater than zero");
+
+// transfer logic
+balanceOf[msg.sender] -= _value;
+balanceOf[_to] += _value;
+
+//emit transfer event
+emit Transfer(msg.sender, _to, _value);
+return true;
  }
+ 
+}
+
 
     
