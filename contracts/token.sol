@@ -10,6 +10,7 @@ contract Tokens {
     mapping(address => uint256) public balanceOf;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Swap(address indexed _from, address indexed _to, uint256 _value);
 
      constructor (
      string memory _name,
@@ -37,7 +38,21 @@ balanceOf[_to] += _value;
 emit Transfer(msg.sender, _to, _value);
 return true;
  }
- 
+
+ function swap(address _to, uint256 _value) 
+ public 
+ returns (bool success) 
+ {
+    require(_value > 0 ,"Swap must be greater than zero");
+    require(_to != address(this), "Cannot swap token for itself");
+
+    balanceOf[msg.sender] -= _value;
+    balanceOf[_to] += _value;
+
+    emit Swap(msg.sender, _to, _value);
+    return true;
+
+ }
 }
 
 

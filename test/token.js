@@ -86,7 +86,7 @@ describe('Token', () => {
             it('Should transfer tokens successfully with enough balance', async () => {
                 const transferAmount = tokens(3)
 
-                // Check balance of account 1 before transferer
+                // Check balance of account 1 before transfer
                 const balanceBefore = await token2.balanceOf(account1.address)
                
                 const transferTx3 = await token2.connect(deployer).transfer(account1.address, transferAmount)
@@ -95,7 +95,7 @@ describe('Token', () => {
                 // Check balance of account 1 after transfer
                 const balanceAfter = await token2.balanceOf(account1.address)
                 
-                // Check if balance of account1 has increased after transfer
+                // Check if balance of account 1 has increased after transfer
                 expect(balanceAfter).to.equal(transferAmount)
             })
         })
@@ -105,8 +105,6 @@ describe('Token', () => {
                 const transferAmount = tokens(1);
                 await expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
             })
-
         })
     })
-
 })
