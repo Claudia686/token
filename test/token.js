@@ -10,10 +10,10 @@ const tokens = (n) => {
 }
 
 describe('Token', () => {
-    let deployer, token1, token2, account1, account2, hacker
+    let deployer, token1, token2, account1, account2, hacker, user1, user2
 
     beforeEach(async () => {
-        [deployer, token1, token2, account1, account2, hacker] = await ethers.getSigners()
+        [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners()
         const Tokens = await ethers.getContractFactory('Tokens')
         token1 = await Tokens.deploy('DexCoin', 'DX', '1000')
         token2 = await Tokens.deploy('My Token', 'MT', '1000')
@@ -53,7 +53,7 @@ describe('Token', () => {
                 // Check owner balance before
                 const initialOwnerBalance = await token1.balanceOf(deployer.address)
                 const transferAmount = tokens(10)
-             
+
                 // Transfer to account 1
                 const transferTx1 = await token1.connect(deployer).transfer(account1.address, transferAmount)
                 await transferTx1.wait()
@@ -83,18 +83,30 @@ describe('Token', () => {
                 expect(finalAccountBalance).to.equal(transferAmount)
             })
 
+            it('Transfers tokens from token 1 to users', async () => {
+                const transferAmount = tokens(100)
+
+                // Transfer to user 1
+                const transferTx1 = await token1.connect(deployer).transfer(user1.address, transferAmount)
+                await transferTx1.wait()
+
+                // Transfer to user 2
+                const transferTx2 = await token1.connect(deployer).transfer(user2.address, transferAmount)
+                await transferTx2 .wait()
+            })
+
             it('Should transfer tokens successfully with enough balance', async () => {
                 const transferAmount = tokens(3)
 
                 // Check balance of account 1 before transfer
                 const balanceBefore = await token2.balanceOf(account1.address)
-               
+
                 const transferTx3 = await token2.connect(deployer).transfer(account1.address, transferAmount)
                 await transferTx3.wait()
 
                 // Check balance of account 1 after transfer
                 const balanceAfter = await token2.balanceOf(account1.address)
-                
+
                 // Check if balance of account 1 has increased after transfer
                 expect(balanceAfter).to.equal(transferAmount)
             })
