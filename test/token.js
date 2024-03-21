@@ -92,7 +92,7 @@ describe('Token', () => {
 
                 // Transfer to user 2
                 const transferTx2 = await token1.connect(deployer).transfer(user2.address, transferAmount)
-                await transferTx2 .wait()
+                await transferTx2.wait()
             })
 
             it('Should transfer tokens successfully with enough balance', async () => {
@@ -110,12 +110,20 @@ describe('Token', () => {
                 // Check if balance of account 1 has increased after transfer
                 expect(balanceAfter).to.equal(transferAmount)
             })
-        })
 
-        describe('Failure', async () => {
-            it('Rejects with zero balance', async () => {
-                const transferAmount = tokens(1);
-                await expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
+            it('Emit Transfer event with correct parameters', async () => {
+                const transferAmount = tokens(1)
+
+                // Transfer token from token 2 between accounts
+                const transferToUser2 = await token2.connect(deployer).transfer(user2.address, transferAmount)
+                await expect(transferToUser2).to.emit(token2, 'Transfer').withArgs(deployer.address, user2.address, transferAmount)
+            })
+
+            describe('Failure', async () => {
+                it('Rejects with zero balance', async () => {
+                    const transferAmount = tokens(1);
+                    await expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
+                })
             })
         })
     })
