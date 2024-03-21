@@ -30,7 +30,6 @@ returns (bool success)
 require(balanceOf[msg.sender] >= _value, "Insufficient balance");
 require(_value >= 0, "Transfer amount must be greater than zero");
 
-// transfer logic
 balanceOf[msg.sender] -= _value;
 balanceOf[_to] += _value;
 
@@ -51,7 +50,6 @@ return true;
 
     emit Swap(msg.sender, _to, _value);
     return true;
-
  }
 }
 

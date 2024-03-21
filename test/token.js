@@ -95,7 +95,7 @@ describe('Token', () => {
                 await transferTx2.wait()
             })
 
-            it('Should transfer tokens successfully with enough balance', async () => {
+            it('Should transfer tokens with enough balance', async () => {
                 const transferAmount = tokens(3)
 
                 // Check balance of account 1 before transfer
@@ -123,6 +123,63 @@ describe('Token', () => {
                 it('Rejects with zero balance', async () => {
                     const transferAmount = tokens(1);
                     await expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
+                })
+            })
+
+            describe('Swap', () => {
+                describe('Success', async () => {
+                    it('Should swap tokens successfully', async () => {
+                        const swapAmount = tokens(50)
+
+                        // Check balance of account 1 before swap
+                        const balanceBefore = await token1.balanceOf(account1.address)
+
+                        // Swap from token 1 to account 1
+                        const swapTx = await token1.connect(deployer).swap(account1.address, swapAmount)
+                        await swapTx.wait()
+
+                        // Check balance of account 1 after swap
+                        const balanceAfter = await token1.balanceOf(account1.address)
+                        expect(balanceAfter).to.be.greaterThan(balanceBefore)
+                    })
+
+                    it('Swap tokens with varying amounts between users', async () => {
+                        const swapAmount1 = tokens(100)
+                        const swapAmount2 = tokens(100)
+
+                        // Check balance before swap
+                        const balanceBefore1 = await token2.balanceOf(user1.address)
+                        const balanceBefore2 = await token2.balanceOf(user2.address)
+
+                        // Swap token from token 2 to users
+                        const swapTx1 = await token2.connect(deployer).swap(user1.address, swapAmount1)
+                        await swapTx1.wait()
+
+                        const swapTx2 = await token2.connect(deployer).swap(user2.address, swapAmount1)
+                        await swapTx2.wait()
+
+                        // Check balance after swap
+                        const balanceAfter1 = await token2.balanceOf(user1.address)
+                        const balanceAfter2 = await token2.balanceOf(user2.address)
+
+                        expect(balanceAfter1).to.be.greaterThan(balanceBefore1)
+                        expect(balanceAfter2).to.be.greaterThan(balanceBefore2)
+                    })
+
+                    it('Emit Swap event with correct parameters', async () => {
+                        const swapAmount = tokens(10)
+
+                        // Swap token 1 to user 2
+                        const swapTx = await token1.connect(deployer).swap(user2.address, swapAmount)
+                         await expect(swapTx).to.emit(token1, 'Swap').withArgs(deployer.address, user2.address, swapAmount)
+                    })
+
+                    describe('Failure', async () => {
+                        it('Rejects swapping tokens with zero value', async () => {
+                            const swapAmount = tokens(0)
+                            await expect(token1.connect(account1).swap(user2.address, swapAmount)).to.be.revertedWith('Swap must be greater than zero');
+                        })
+                    })
                 })
             })
         })
