@@ -10,15 +10,20 @@ const tokens = (n) => {
 }
 
 describe('Token', () => {
-    let deployer, token1, token2, account1, account2, hacker, user1, user2
+    let deployer, token1, token2, account1
+    let account2, hacker, user1, user2
 
     beforeEach(async () => {
-        [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners()
-        const Tokens = await ethers.getContractFactory('Tokens')
-        token1 = await Tokens.deploy('DexCoin', 'DX', '1000')
-        token2 = await Tokens.deploy('My Token', 'MT', '1000')
-    })
+        [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners();
+        const Tokens = await ethers.getContractFactory('Tokens');
 
+        token1 = await Tokens.deploy('DexCoin', 'DX', '1000');
+        token2 = await Tokens.deploy('My Token', 'MT', '1000');
+
+        console.log('Token 1 address:', await token1.getAddress());
+        console.log('Token 2 address:', await token2.getAddress());
+    })
+    
     describe('Deployment', () => {
         // Token 1
         const name1 = 'DexCoin';
@@ -116,7 +121,7 @@ describe('Token', () => {
 
                 // Transfer token from token 2 between accounts
                 const transferToUser2 = await token2.connect(deployer).transfer(user2.address, transferAmount)
-                await expect(transferToUser2).to.emit(token2, 'Transfer').withArgs(deployer.address, user2.address, transferAmount)
+                expect(await transferToUser2).to.emit(token2, 'Transfer').withArgs(deployer.address, user2.address, transferAmount)
             })
 
             describe('Failure', async () => {
@@ -171,7 +176,7 @@ describe('Token', () => {
 
                         // Swap token 1 to user 2
                         const swapTx = await token1.connect(deployer).swap(user2.address, swapAmount)
-                         await expect(swapTx).to.emit(token1, 'Swap').withArgs(deployer.address, user2.address, swapAmount)
+                        await expect(swapTx).to.emit(token1, 'Swap').withArgs(deployer.address, user2.address, swapAmount)
                     })
 
                     describe('Failure', async () => {

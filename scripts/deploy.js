@@ -1,32 +1,25 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
 const hre = require("hardhat");
 
-async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
-
-  const lockedAmount = hre.ethers.parseEther("0.001");
-
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
-
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
+const tokens = (n) => {
+  return ethers.parseUnits(n.toString(), 'ether')
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+async function main() {
+  // Setup accounts & variables
+
+  const [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners()
+
+  // Deploy the contract
+  const Tokens = await ethers.getContractFactory('Tokens');
+
+  const deployedToken1 = await Tokens.deploy('DexCoin', 'DX', '1000')
+  console.log(`DX deploy to: ${await deployedToken1.getAddress()}`)
+
+  const deployedToken2 = await Tokens.deploy('My Token', 'MT', '1000')
+  console.log(`MT deploy to: ${await deployedToken2.getAddress()}`)
+
+}
+
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
