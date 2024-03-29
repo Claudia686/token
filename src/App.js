@@ -1,12 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import { Contract } from 'ethers';
+import React, {
+    useEffect,
+    useState
+} from 'react';
+import {
+    ethers
+} from 'ethers';
 import config from './config.json';
 import TOKEN_ABIS from './abis/token.json';
 import './App.css';
 
 function App() {
-    
+
+    // State to store the amount entered by the user
+    const [amount, setAmount] = useState('');
+
+    // Function to handle click event for Transfer button
+    const handleTransferClick = () => {
+        // Replace this with the functionality you want to happen when Transfer button is clicked
+        console.log('Transfer button clicked');
+        alert('Button clicket');
+        console.log('Amount:', amount);
+        alert('Button clicked');
+    }
+
     const loadBlockchainData = async () => {
         const accounts = await window.ethereum.request({
             method: 'eth_requestAccounts'
@@ -31,9 +47,8 @@ function App() {
         loadBlockchainData()
     })
 
-    return (
 
-        <
+    return ( <
         div className = "container" >
         <
         h1 > Tokens Transfer or Swap < /h1> <
@@ -45,20 +60,33 @@ function App() {
         option value = "token1" > DX < /option> <
         option value = "token2" > MT < /option> < /
         select > <
-        /div> <
+        /div>
+
+        <
         div className = "action-selection" >
         <
-        button > Transfer < /button> <
-        button > Swap < /button> < /
-        div > <
+        label htmlFor = "token" > Enter amount: < /label> <
+        input type = "number"
+        value = {
+            amount
+        }
+        onChange = {
+            (e) => setAmount(e.target.value)
+        }
+        /> <
+        button className = "transfer-button" > Transfer < /button> <
+        button className = "swap-button" > Swap < /button> < /
+        div >
+
+        <
         div className = "perform-action" >
         <
-        button > Connect wallet < /button> < /
+        button className = "connect-wallet-button" > Connect wallet < /button> < /
         div > <
         /div>
 
-
     );
 }
+
 
 export default App;
