@@ -6,18 +6,16 @@ const tokens = (n) => {
 
 async function main() {
   // Setup accounts & variables
-
-  const [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners()
+  const [deployer] = await ethers.getSigners()
    
   // Deploy the contract
   const Tokens = await ethers.getContractFactory('Tokens');
 
-  const deployedToken1 = await Tokens.deploy('DexCoin', 'DX', '1000');
-  console.log(`DX deploy to: ${await deployedToken1.getAddress()}`)
+  const DX = await Tokens.deploy('DexCoin', 'DX', '1000');
+  console.log(`DX deploy to: ${await DX.getAddress()}`)
 
-  const deployedToken2 = await Tokens.deploy('My Token', 'MT', '1000');
-  console.log(`MT deploy to: ${await deployedToken2.getAddress()}`)
-
+  const MT = await Tokens.deploy('My Token', 'MT', '1000');
+  console.log(`MT deploy to: ${await MT.getAddress()}`)
 }
 
 main().catch((error) => {

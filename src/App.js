@@ -1,92 +1,98 @@
-import React, {
-    useEffect,
-    useState
-} from 'react';
-import {
-    ethers
-} from 'ethers';
+import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
 import config from './config.json';
 import TOKEN_ABIS from './abis/token.json';
 import './App.css';
+import tokenAddresses from './tokens.json';
 
 function App() {
+  const user1Address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const user2Address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
-    // State to store the amount entered by the user
-    const [amount, setAmount] = useState('');
+  const [account, setAccount] = useState(null)
+  const [provider, setProvider] = useState(null)
+  const [currentTokenInstance, setCurrentTokenInstance] = useState(null)
+  const [fromAddress, setFromAddress] = useState(user1Address)
+  const [toAddress, setToAddress] = useState(user2Address)
+  const [selectedToken, setSelectedToken] = useState('token2')
+  const [amount, setAmount] = useState(1)
 
-    // Function to handle click event for Transfer button
-    const handleTransferClick = () => {
-        // Replace this with the functionality you want to happen when Transfer button is clicked
-        console.log('Transfer button clicked');
-        alert('Button clicket');
-        console.log('Amount:', amount);
-        alert('Button clicked');
-    }
+  const transferHandler = async () => {
+    const signer = await provider.getSigner();
+    const signerAddress = await signer.getAddress();
 
-    const loadBlockchainData = async () => {
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        })
-        console.log(accounts[0])
+    const toAddress = (signerAddress.toLowerCase() === user1Address.toLowerCase()) ? user2Address : user1Address;
+    const validAddress = ethers.getAddress(toAddress);
 
-        // Connect Ethers to blockchain
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const {
-            chainId
-        } = await provider.getNetwork()
-        console.log(chainId)
+    const user1BalanceBefore = await currentTokenInstance.balanceOf(user1Address)
+    console.log('user1BalanceBefore:', ethers.formatUnits(user1BalanceBefore, 18))
 
-        // Token Smart Contract 
-        const token = new ethers.Contract(config[chainId].MT.address, TOKEN_ABIS, provider)
-        console.log(token.address)
-        const symbol = await token.symbol()
-        console.log(symbol)
-    }
+    // Token balance before transfer
+    const tokenBalance = await currentTokenInstance.balanceOf(signerAddress)
+    console.log('tokenBalance:', ethers.formatUnits(tokenBalance, 18))
 
-    useEffect(() => {
-        loadBlockchainData()
-    })
-
-
-    return ( <
-        div className = "container" >
-        <
-        h1 > Tokens Transfer or Swap < /h1> <
-        div className = "token-selection" >
-        <
-        label htmlFor = "token" > Select Token: < /label> <
-        select id = "token" >
-        <
-        option value = "token1" > DX < /option> <
-        option value = "token2" > MT < /option> < /
-        select > <
-        /div>
-
-        <
-        div className = "action-selection" >
-        <
-        label htmlFor = "token" > Enter amount: < /label> <
-        input type = "number"
-        value = {
-            amount
-        }
-        onChange = {
-            (e) => setAmount(e.target.value)
-        }
-        /> <
-        button className = "transfer-button" > Transfer < /button> <
-        button className = "swap-button" > Swap < /button> < /
-        div >
-
-        <
-        div className = "perform-action" >
-        <
-        button className = "connect-wallet-button" > Connect wallet < /button> < /
-        div > <
-        /div>
-
-    );
+    const transaction = await currentTokenInstance.connect(signer).transfer(toAddress, amount)
+    await transaction.wait();
+    
+    // Token balance after transfer
+    const user1BalanceAfter = await currentTokenInstance.balanceOf(user1Address)
+    console.log('user1BalanceAfter:', ethers.formatUnits(user1BalanceAfter, 18))
 }
 
+const connectHandler = async () => {
+  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts'})
+  const account = accounts[0]
+  setAccount(account)
+
+  // Connect Ethers to blockchain
+  const newProvider = new ethers.BrowserProvider(window.ethereum);
+  setProvider(newProvider);
+}
+
+ const loadBlockchainData = async () => {
+    const { chainId } = await provider.getNetwork();
+
+    setFromAddress(account)
+    setToAddress(account === user1Address ? user2Address : user1Address)
+
+    // Token Smart Contract 
+    const selectedTokensAddress = tokenAddresses.tokens[selectedToken];
+    const currentTokenInstance = new ethers.Contract(selectedTokensAddress, TOKEN_ABIS, provider)
+    setCurrentTokenInstance(currentTokenInstance)
+  }
+
+  useEffect(() => {
+    if (provider) {
+      loadBlockchainData()
+    }
+
+  }, [provider, selectedToken]);
+
+    return (
+    <div className="container">
+      <h1>Tokens Transfer or Swap</h1>
+      <button className="connect-wallet-button" onClick={connectHandler}>Connect wallet</button>
+      {currentTokenInstance ? (
+        <>
+          <div className="token-selection">
+            <label htmlFor="token">Select Token:</label>
+            <select id="token" value={selectedToken} onChange={(e) => setSelectedToken(e.target.value)}>
+              <option value="token1">DX</option>
+              <option value="token2">MT</option>
+            </select>
+          </div>
+          <div className="action-selection">
+            <label htmlFor="amount">Enter amount:</label>
+            <input type="number" id="amount" onChange={(e) => setAmount(e.target.value)} />
+          </div>
+          <button className="transfer-button" onClick={transferHandler}>Transfer</button>
+          <button className="swap-button">Swap</button>
+        </>
+      ) : (
+        <p>Loading or Connect to Wallet...</p>
+      )}
+    </div>
+  );
+}
 
 export default App;

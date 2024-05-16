@@ -21,27 +21,27 @@ contract Tokens {
         symbol = _symbol;
         totalSupply = _totalSupply *(10**decimals);
         balanceOf[msg.sender] = totalSupply;
-     }
+    }
 
- function transfer(address _to, uint256 _value)
-public 
-returns (bool success)
+function transfer(address _to, uint256 _value)
+    public 
+    returns (bool success)
 {
-require(balanceOf[msg.sender] >= _value, "Insufficient balance");
-require(_value >= 0, "Transfer amount must be greater than zero");
+    require(balanceOf[msg.sender] >= _value, "Insufficient balance");
+    require(_value >= 0, "Transfer amount must be greater than zero");
 
-balanceOf[msg.sender] -= _value;
-balanceOf[_to] += _value;
+    balanceOf[msg.sender] -= _value;
+    balanceOf[_to] += _value;
 
-//emit transfer event
-emit Transfer(msg.sender, _to, _value);
-return true;
- }
+   //emit transfer event
+    emit Transfer(msg.sender, _to, _value);
+    return true;
+}
 
- function swap(address _to, uint256 _value) 
- public 
- returns (bool success) 
- {
+function swap(address _to, uint256 _value) 
+    public 
+    returns (bool success) 
+{
     require(_value > 0 ,"Swap must be greater than zero");
     require(_to != address(this), "Cannot swap token for itself");
 

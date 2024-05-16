@@ -16,12 +16,10 @@ describe('Token', () => {
     beforeEach(async () => {
         [deployer, token1, token2, account1, account2, hacker, user1, user2] = await ethers.getSigners();
         const Tokens = await ethers.getContractFactory('Tokens');
+        
 
         token1 = await Tokens.deploy('DexCoin', 'DX', '1000');
         token2 = await Tokens.deploy('My Token', 'MT', '1000');
-
-        console.log('Token 1 address:', await token1.getAddress());
-        console.log('Token 2 address:', await token2.getAddress());
     })
     
     describe('Deployment', () => {
@@ -127,7 +125,7 @@ describe('Token', () => {
             describe('Failure', async () => {
                 it('Rejects with zero balance', async () => {
                     const transferAmount = tokens(1);
-                    await expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
+                    expect(token1.connect(hacker).transfer(deployer.address, transferAmount)).to.be.reverted;
                 })
             })
 
@@ -182,7 +180,7 @@ describe('Token', () => {
                     describe('Failure', async () => {
                         it('Rejects swapping tokens with zero value', async () => {
                             const swapAmount = tokens(0)
-                            await expect(token1.connect(account1).swap(user2.address, swapAmount)).to.be.revertedWith('Swap must be greater than zero');
+                            expect(token1.connect(account1).swap(user2.address, swapAmount)).to.be.revertedWith('Swap must be greater than zero');
                         })
                     })
                 })
