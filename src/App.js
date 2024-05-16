@@ -60,6 +60,16 @@ const connectHandler = async () => {
     const currentTokenInstance = new ethers.Contract(selectedTokensAddress, TOKEN_ABIS, provider)
     setCurrentTokenInstance(currentTokenInstance)
   }
+  
+   // Event listener for Ethereum account changes 
+   const handleAccountsChanged = (accounts) => {
+    console.log('Accounts changed', accounts)
+    setAccount(accounts[0])
+   }
+
+    if (window.ethereum) {
+    window.ethereum.on('accountsChanged', handleAccountsChanged)
+    }
 
   useEffect(() => {
     if (provider) {
