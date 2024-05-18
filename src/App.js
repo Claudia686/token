@@ -18,25 +18,43 @@ function App() {
   const [amount, setAmount] = useState(1)
 
   const transferHandler = async () => {
-    const signer = await provider.getSigner();
-    const signerAddress = await signer.getAddress();
+    // Define the signer
+    const signer = await provider.getSigner()
+    const signerAddress = await signer.getAddress()
 
     const toAddress = (signerAddress.toLowerCase() === user1Address.toLowerCase()) ? user2Address : user1Address;
-    const validAddress = ethers.getAddress(toAddress);
+    const validAddress = ethers.getAddress(toAddress)
 
-    const user1BalanceBefore = await currentTokenInstance.balanceOf(user1Address)
-    console.log('user1BalanceBefore:', ethers.formatUnits(user1BalanceBefore, 18))
+    // Check balance before transfer
+    const balanceBeforeTransfer = await currentTokenInstance.balanceOf(signerAddress)
+    console.log('Balance Before Transfer:', ethers.formatUnits(balanceBeforeTransfer, 18))
 
-    // Token balance before transfer
-    const tokenBalance = await currentTokenInstance.balanceOf(signerAddress)
-    console.log('tokenBalance:', ethers.formatUnits(tokenBalance, 18))
-
+    // Call transfer function
     const transaction = await currentTokenInstance.connect(signer).transfer(toAddress, amount)
-    await transaction.wait();
+    await transaction.wait()
     
-    // Token balance after transfer
-    const user1BalanceAfter = await currentTokenInstance.balanceOf(user1Address)
-    console.log('user1BalanceAfter:', ethers.formatUnits(user1BalanceAfter, 18))
+    // Check balance after transfer
+    const balanceAfterTransfer = await currentTokenInstance.balanceOf(signerAddress)
+    console.log('Balance After Transfer:', ethers.formatUnits(balanceAfterTransfer, 18))
+}
+
+  const swapHandler = async () => {
+    // Define the signer
+    const signer = await provider.getSigner()
+    const signerAddress = await signer.getAddress()
+    console.log('Signer Address', signerAddress)
+
+    // Check balance before swap 
+    const balanceBeforeSwap = await currentTokenInstance.balanceOf(signerAddress)
+    console.log('Balance Before Swap', ethers.formatUnits(balanceBeforeSwap, 18))
+
+    // Call swap function
+    const transaction = await currentTokenInstance.connect(signer).swap(toAddress, amount)
+    await transaction.wait()
+
+    // Check balance after swap 
+    const balanceAfterSwap = await currentTokenInstance.balanceOf(signerAddress)
+    console.log('Balance After Swap', ethers.formatUnits(balanceAfterSwap, 18))
 }
 
 const connectHandler = async () => {
@@ -60,7 +78,7 @@ const connectHandler = async () => {
     const currentTokenInstance = new ethers.Contract(selectedTokensAddress, TOKEN_ABIS, provider)
     setCurrentTokenInstance(currentTokenInstance)
   }
-  
+
    // Event listener for Ethereum account changes 
    const handleAccountsChanged = (accounts) => {
     console.log('Accounts changed', accounts)
@@ -96,8 +114,9 @@ const connectHandler = async () => {
             <input type="number" id="amount" onChange={(e) => setAmount(e.target.value)} />
           </div>
           <button className="transfer-button" onClick={transferHandler}>Transfer</button>
-          <button className="swap-button">Swap</button>
+          <button className="swap-button" onClick={swapHandler}>Swap</button>
         </>
+            
       ) : (
         <p>Loading or Connect to Wallet...</p>
       )}
